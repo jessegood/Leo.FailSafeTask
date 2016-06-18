@@ -139,6 +139,7 @@
   <ItemGroup>
     <Compile Include="ClearTarget.cs" />
     <Compile Include="CopySourceToTarget.cs" />
+    <Compile Include="ErrorMessageReporter.cs" />
     <Compile Include="FailSafeTask.cs" />
     <Compile Include="FailSafeTaskControl.cs">
       <SubType>UserControl</SubType>

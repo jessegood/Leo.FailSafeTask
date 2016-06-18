@@ -21,6 +21,7 @@
         private readonly XElement root = new XElement("FailSafe");
         private string backupPath = null;
         private FailSafeTaskSettings settings = null;
+        private readonly ErrorMessageReporter errorMsgReporter = new ErrorMessageReporter();
 
         public override bool OnFileComplete(ProjectFile projectFile, IMultiFileConverter multiFileConverter)
         {
@@ -43,12 +44,13 @@
 
             CreateReport("Fail Safe Task Report", "Determines whether native file generation is possible", root.ToString());
 
-            // Waiting on RevertToSDLXLIFF
-            // https://community.sdl.com/products-solutions/solutions/customer_experience_cloud/language/language-developers/f/57/t/4669#pi239031345filter=all&pi239031345scroll=false
+            // Report any errors to prevent subsequent tasks from running
+            errorMsgReporter.ReportErrors();
         }
 
         protected override void ConfigureConverter(ProjectFile projectFile, IMultiFileConverter multiFileConverter)
         {
+            multiFileConverter.AddBilingualProcessor(new BilingualContentHandlerAdapter(errorMsgReporter));
             PrepareForGenerateTarget(projectFile, multiFileConverter);
         }
 
@@ -165,6 +167,8 @@
                         new XAttribute("Name", projectFile.Name),
                         new XAttribute("Failed", true),
                         FormatMessage(task.Messages)));
+
+                errorMsgReporter.StoreMessage(projectFile.Name, FormatMessage(task.Messages));
             }
         }
     }
